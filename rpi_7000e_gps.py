@@ -23,7 +23,9 @@ def write_cmd(p, cmd):
         print("--------------")
         return False
 
-portName = "COM7"
+#portName = "COM7"
+portName = "/dev/ttyUSB3"
+
 phone = serial.Serial(port = portName,
                       baudrate = 115200,
                       bytesize = serial.EIGHTBITS,
