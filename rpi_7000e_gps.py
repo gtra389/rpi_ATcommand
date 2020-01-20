@@ -24,7 +24,7 @@ def write_cmd(p, cmd):
         return False
 
 #portName = "COM7"
-portName = "/dev/ttyUSB3"
+portName = "/dev/ttyS0"
 
 phone = serial.Serial(port = portName,
                       baudrate = 115200,
@@ -72,6 +72,7 @@ while (ii < 200):
                         file.write("%s," % item)
                     file.write("\n")
                     flag = 1
+                    continue
 
             with open(queryFid, "a") as file:            
                 for item in NMEAinf:
@@ -83,4 +84,4 @@ while (ii < 200):
             print("Wait for the GNSS ready.")
     except:
         pass    
-    time.sleep(0.5)                    
+    time.sleep(0.1)                    
