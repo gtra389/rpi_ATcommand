@@ -29,8 +29,8 @@ def write_cmd(p, cmd):
 def power_on(power_key):
     print('SIM7000e is starting')
     GPIO.setmode(GPIO.BCM)
-	GPIO.setwarnings(False)
-	GPIO.setup(power_key,GPIO.OUT)
+    GPIO.setwarnings(False)
+    GPIO.setup(power_key,GPIO.OUT)
 	time.sleep(0.1)
 	GPIO.output(power_key,GPIO.HIGH)
 	time.sleep(2)
