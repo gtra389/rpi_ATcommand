@@ -27,6 +27,7 @@ def power_on(power_key):
 def power_down(power_key):
 	print('SIM7600X is loging off:')
 	GPIO.setmode(GPIO.BCM)
+	GPIO.setwarnings(False)
 	GPIO.output(power_key,GPIO.HIGH)
 	time.sleep(3)
 	GPIO.output(power_key,GPIO.LOW)
