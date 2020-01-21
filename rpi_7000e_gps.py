@@ -115,10 +115,8 @@ while True:
         else:
             print("Wait for the GNSS ready.")
             time.sleep(0.5)
-
-# phone.close()
-# power_down(power_key)
-# GPIO.cleanup() 
+    except:
+        pass
 
 
         
