@@ -97,8 +97,9 @@ while (ii < 200):
                     file.write("\n")
                     for item in NMEAinf:
                         file.write("%s," % item)
-                    file.write("\n")
-                    flag = 1
+                    file.write("\n")                    
+                flag = 1
+                continue
 
             with open(queryFid, "a") as file:            
                 for item in NMEAinf:
