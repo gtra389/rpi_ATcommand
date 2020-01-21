@@ -6,6 +6,18 @@ import serial
 result = []
 power_key = 4
 
+#portName = "COM7"
+#portName = "/dev/ttyS0"  # 3B+
+portName = "/dev/serial0" # pi zero
+
+phone = serial.Serial(port = portName,
+                      baudrate = 115200,
+                      bytesize = serial.EIGHTBITS,
+                      parity = serial.PARITY_NONE,
+                      stopbits = serial.STOPBITS_ONE,
+                      timeout = 5) # Unit in second
+phone.flushInput()
+
 def write_cmd(p, cmd):
     global result
     cmd = cmd + str("\r")
@@ -31,13 +43,13 @@ def power_on(power_key):
     GPIO.setmode(GPIO.BCM)
     GPIO.setwarnings(False)
     GPIO.setup(power_key,GPIO.OUT)
-	time.sleep(0.1)
-	GPIO.output(power_key,GPIO.HIGH)
-	time.sleep(2)
-	GPIO.output(power_key,GPIO.LOW)
-	time.sleep(1)
-	ser.flushInput()
-	print('SIM7000e is ready')
+    time.sleep(0.1)
+    GPIO.output(power_key,GPIO.HIGH)
+    time.sleep(2)
+    GPIO.output(power_key,GPIO.LOW)
+    time.sleep(1)
+    phone.flushInput()
+    print('SIM7000e is ready')
 
 def power_down(power_key):
 	print('SIM7000e is logging off:')
@@ -47,17 +59,7 @@ def power_down(power_key):
 	time.sleep(1)
 	print('Good bye')
 
-#portName = "COM7"
-#portName = "/dev/ttyS0"  # 3B+
-portName = "/dev/serial0" # pi zero
-
-phone = serial.Serial(port = portName,
-                      baudrate = 115200,
-                      bytesize = serial.EIGHTBITS,
-                      parity = serial.PARITY_NONE,
-                      stopbits = serial.STOPBITS_ONE,
-                      timeout = 5) # Unit in second
-
+# Power on the SIM7000e
 power_on(power_key)
 
 # Initialize the SIM7000e
@@ -75,13 +77,13 @@ while True:
 # Read GNSS navigation information
 flag = 0
 ii = 0
-while (ii < 200):
-    write_cmd(phone, 'AT+CGNSINF')    
-    result = result[1]
-    result = result.split()
-    result = result.pop()
-    result = result.split(',') 
+while True:
     try:
+        write_cmd(phone, 'AT+CGNSINF')    
+        result = result[1]
+        result = result.split()
+        result = result.pop()
+        result = result.split(',') 
         if (result[1] == '1'): # Fix status = 1
             NMEAinf = [int(float(result[2])),  # timeStamp
                        float(result[3]),       # latitude
@@ -109,9 +111,10 @@ while (ii < 200):
                 ii += 1            
         else:
             print("Wait for the GNSS ready.")
+            time.sleep(0.5)  
     except:
         phone.close()
         power_down(power_key)
         GPIO.cleanup()
         
-    time.sleep(0.5)                    
+                      
