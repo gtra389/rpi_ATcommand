@@ -82,39 +82,42 @@ ii = 0
 
 try:
     while True:
-        write_cmd(phone, 'AT+CGNSINF')    
-        result = result[1]
-        result = result.split()
-        result = result.pop()
-        result = result.split(',') 
-        if (result[1] == '1'): # Fix status = 1
-            NMEAinf = [int(float(result[2])),  # timeStamp
-                        float(result[3]),       # latitude
-                        float(result[4]),       # longitude
-                        float(result[5]),       # MSL altitude
-                        int(result[14]),        # satellites in view
-                        int(result[15])]        # satellites used
+        try:
+            write_cmd(phone, 'AT+CGNSINF')    
+            result = result[1]
+            result = result.split()
+            result = result.pop()
+            result = result.split(',') 
+            if (result[1] == '1'): # Fix status = 1
+                NMEAinf = [int(float(result[2])),  # timeStamp
+                            float(result[3]),       # latitude
+                            float(result[4]),       # longitude
+                            float(result[5]),       # MSL altitude
+                            int(result[14]),        # satellites in view
+                            int(result[15])]        # satellites used
 
-            if (flag == 0):
-                queryFid = "{}_GNSS_record.txt".format(int(float(result[2])))
-                with open(queryFid, "a") as file:
-                    file.write("---------------Start record---------------")
-                    file.write("\n")
+                if (flag == 0):
+                    queryFid = "{}_GNSS_record.txt".format(int(float(result[2])))
+                    with open(queryFid, "a") as file:
+                        file.write("---------------Start record---------------")
+                        file.write("\n")
+                        for item in NMEAinf:
+                            file.write("%s," % item)
+                        file.write("\n")                    
+                    flag = 1
+                    continue
+
+                with open(queryFid, "a") as file:            
                     for item in NMEAinf:
                         file.write("%s," % item)
-                    file.write("\n")                    
-                flag = 1
-                continue
-
-            with open(queryFid, "a") as file:            
-                for item in NMEAinf:
-                    file.write("%s," % item)
-                file.write("\n")
-                print("NMEAinf: {}".format(NMEAinf))
-                ii += 1            
-        else:
-            print("Wait for the GNSS ready.")
-            time.sleep(0.5)  
+                    file.write("\n")
+                    print("NMEAinf: {}".format(NMEAinf))
+                    ii += 1            
+            else:
+                print("Wait for the GNSS ready.")
+                time.sleep(0.5)
+        except:
+            pass  
 except:
     phone.close()
     power_down(power_key)
