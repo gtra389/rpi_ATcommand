@@ -1,7 +1,10 @@
 import time
 from time import gmtime, strftime
+import RPi.GPIO as GPIO
 import serial
+
 result = []
+power_key = 4
 
 def write_cmd(p, cmd):
     global result
@@ -23,8 +26,30 @@ def write_cmd(p, cmd):
         print("--------------")
         return False
 
+def power_on(power_key):
+    print('SIM7000e is starting')
+    GPIO.setmode(GPIO.BCM)
+	GPIO.setwarnings(False)
+	GPIO.setup(power_key,GPIO.OUT)
+	time.sleep(0.1)
+	GPIO.output(power_key,GPIO.HIGH)
+	time.sleep(2)
+	GPIO.output(power_key,GPIO.LOW)
+	time.sleep(1)
+	ser.flushInput()
+	print('SIM7000e is ready')
+
+def power_down(power_key):
+	print('SIM7000e is logging off:')
+	GPIO.output(power_key,GPIO.HIGH)
+	time.sleep(3)
+	GPIO.output(power_key,GPIO.LOW)
+	time.sleep(1)
+	print('Good bye')
+
 #portName = "COM7"
-portName = "/dev/ttyS0"
+#portName = "/dev/ttyS0"  # 3B+
+portName = "/dev/serial0" # pi zero
 
 phone = serial.Serial(port = portName,
                       baudrate = 115200,
@@ -32,6 +57,8 @@ phone = serial.Serial(port = portName,
                       parity = serial.PARITY_NONE,
                       stopbits = serial.STOPBITS_ONE,
                       timeout = 5) # Unit in second
+
+power_on(power_key)
 
 # Initialize the SIM7000e
 while True:    
@@ -72,7 +99,6 @@ while (ii < 200):
                         file.write("%s," % item)
                     file.write("\n")
                     flag = 1
-                    continue
 
             with open(queryFid, "a") as file:            
                 for item in NMEAinf:
@@ -83,5 +109,8 @@ while (ii < 200):
         else:
             print("Wait for the GNSS ready.")
     except:
-        pass    
-    time.sleep(0.1)                    
+        phone.close()
+        power_down(power_key)
+        GPIO.cleanup()
+        
+    time.sleep(0.5)                    
