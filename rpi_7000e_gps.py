@@ -1,5 +1,4 @@
 import time
-from time import gmtime, strftime
 import RPi.GPIO as GPIO
 import serial
 
@@ -20,10 +19,11 @@ phone.flushInput()
 
 def write_cmd(p, cmd):
     global result
-    cmd = cmd + str("\r")
-    p.write(cmd.encode("utf-8"))
+    cmd = cmd + str("\r\n")
+    p.write(cmd.encode("utf-8"))    
     time.sleep(0.5)
-    result = phone.read(1000)
+    if phone.inWaiting():
+        result = phone.read(phone.inWaiting())    
     result = result.decode("utf-8").splitlines()
     result = list(filter(lambda a: a != '', result))
     
@@ -31,11 +31,13 @@ def write_cmd(p, cmd):
         print("Cmd: {}".format(cmd.replace("\r", "")))        
         print("Response: {}".format(result[1]))
         print("--------------")
+        result = []
         return True
     else:
         print("Cmd: {}".format(cmd.replace("\r", "")))
         print("Error.")
         print("--------------")
+        result = []
         return False
 
 def power_on(power_key):
@@ -77,8 +79,9 @@ while True:
 # Read GNSS navigation information
 flag = 0
 ii = 0
-while True:
-    try:
+
+try:
+    while True:
         write_cmd(phone, 'AT+CGNSINF')    
         result = result[1]
         result = result.split()
@@ -86,11 +89,11 @@ while True:
         result = result.split(',') 
         if (result[1] == '1'): # Fix status = 1
             NMEAinf = [int(float(result[2])),  # timeStamp
-                       float(result[3]),       # latitude
-                       float(result[4]),       # longitude
-                       float(result[5]),       # MSL altitude
-                       int(result[14]),        # satellites in view
-                       int(result[15])]        # satellites used
+                        float(result[3]),       # latitude
+                        float(result[4]),       # longitude
+                        float(result[5]),       # MSL altitude
+                        int(result[14]),        # satellites in view
+                        int(result[15])]        # satellites used
 
             if (flag == 0):
                 queryFid = "{}_GNSS_record.txt".format(int(float(result[2])))
@@ -112,9 +115,9 @@ while True:
         else:
             print("Wait for the GNSS ready.")
             time.sleep(0.5)  
-    except:
-        phone.close()
-        power_down(power_key)
-        GPIO.cleanup()
+except:
+    phone.close()
+    power_down(power_key)
+    GPIO.cleanup()
         
                       
