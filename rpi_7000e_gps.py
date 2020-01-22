@@ -17,27 +17,28 @@ phone = serial.Serial(port = portName,
                       timeout = 5) # Unit in second
 phone.flushInput()
 
-def write_cmd(p, cmd):
+def write_cmd(cmd):
     global result
     cmd = cmd + str("\r\n")
-    p.write(cmd.encode())    
+    phone.write(cmd.encode())    
     time.sleep(0.5)
     if phone.inWaiting():
-        result = phone.read(phone.inWaiting())    
-    result = result.decode().splitlines()
-    result = list(filter(lambda a: a != '', result))
+        result = phone.read(phone.inWaiting()) 
+    try:
+        result = result.decode().splitlines()
+        result = list(filter(lambda a: a != '', result))
+    except:
+        pass
     
     if 'OK' in result:
         print("Cmd: {}".format(cmd.replace("\r", "")))        
         print("Response: {}".format(result[1]))
-        print("--------------")
-        result = []
+        print("--------------")        
         return True
     else:
         print("Cmd: {}".format(cmd.replace("\r", "")))
         print("Error.")
-        print("--------------")
-        result = []
+        print("--------------")        
         return False
 
 def power_on(power_key):
