@@ -67,13 +67,13 @@ power_on(power_key)
 
 # Initialize the SIM7000e
 while True:    
-    if write_cmd(phone, 'AT'):
+    if write_cmd('AT'):
         break
     time.sleep(2) 
 
 # Turn on GNSS power supply
 while True:
-    if write_cmd(phone, 'AT+CGNSPWR=1'):
+    if write_cmd('AT+CGNSPWR=1'):
         break
     time.sleep(2)
 
@@ -83,7 +83,7 @@ ii = 0
 
 while True:
     try:
-        write_cmd(phone, 'AT+CGNSINF')    
+        write_cmd('AT+CGNSINF')    
         result = result[1]
         result = result.split()
         result = result.pop()
