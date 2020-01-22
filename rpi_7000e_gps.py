@@ -20,11 +20,11 @@ phone.flushInput()
 def write_cmd(p, cmd):
     global result
     cmd = cmd + str("\r\n")
-    p.write(cmd.encode("utf-8"))    
+    p.write(cmd.encode())    
     time.sleep(0.5)
     if phone.inWaiting():
         result = phone.read(phone.inWaiting())    
-    result = result.decode("utf-8").splitlines()
+    result = result.decode().splitlines()
     result = list(filter(lambda a: a != '', result))
     
     if 'OK' in result:
